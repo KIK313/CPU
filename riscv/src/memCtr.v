@@ -6,5 +6,5 @@ module memCtr (clk, rst, rdy, inData, outData);
     output reg[31:0] outData;
 
 
-    
-endmodule;
+
+endmodule

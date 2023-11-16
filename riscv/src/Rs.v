@@ -1,3 +1,3 @@
 module Rs();
 
-endmodule;
+endmodule

@@ -1,0 +1,2 @@
+module insCache(clk);
+endmodule

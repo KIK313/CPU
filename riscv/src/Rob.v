@@ -1,3 +1,3 @@
 module Rob(clk);
-    input wire clk;
-endmodule;
+    input wire clk; 
+endmodule
