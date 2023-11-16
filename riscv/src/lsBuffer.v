@@ -1,0 +1,2 @@
+module lsBuffer();
+endmodule;
