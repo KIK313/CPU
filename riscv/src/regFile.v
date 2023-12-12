@@ -22,7 +22,7 @@ module regFile #(parameter rob_width = 4) (
     input wire[31 : 0] commit_val,
     input wire[4 : 0] commit_rob_tag
 );
-    reg[31 : 0] reg_val[31 : 0];
+    reg[31 : 0] reg_val[31 : 0]; // reg[0] === 0
     reg[31 : 0] is_tag; // 0 -> no tag cover 
     reg[rob_width-1 : 0] rob_tag[31 : 0];
     integer i;
