@@ -49,24 +49,50 @@ module regFile #(parameter rob_width = 4) (
                 rob_tag[issue_reg_id] <= issue_rob_tag;
             end
 
-            // read 2 regs
+            // // read 2 regs
+            // if (commit_sig && commit_reg != 5'b00000 && 
+            //     commit_reg == reg1 && commit_rob_tag == rob_tag[reg1]) begin
+            //     val1 <= commit_val;
+            //     rob_tag1 <= {1'b0, {rob_width{1'b0}}};
+            // end else begin
+            //     val1 <= reg_val[reg1];
+            //     rob_tag1 <= {is_tag[reg1], rob_tag[reg1]};
+            // end
+
+            // if (commit_sig && commit_reg != 5'b00000 && 
+            //     commit_reg == reg2 && commit_rob_tag == rob_tag[reg2]) begin
+            //     val2 <= commit_val;
+            //     rob_tag2 <= {1'b0, {rob_width{1'b0}}};
+            // end else begin
+            //     val2 <= reg_val[reg2];
+            //     rob_tag2 <= {is_tag[reg2], rob_tag[reg2]};
+            // end
+        end
+    end
+    // read 2 regs
+    always @(*) begin
+        if (!rst && rdy) begin
             if (commit_sig && commit_reg != 5'b00000 && 
                 commit_reg == reg1 && commit_rob_tag == rob_tag[reg1]) begin
-                val1 <= commit_val;
-                rob_tag1 <= {1'b0, {rob_width{1'b0}}};
+                val1 = commit_val;
+                rob_tag1 = {1'b0, {rob_width{1'b0}}};
             end else begin
-                val1 <= reg_val[reg1];
-                rob_tag1 <= {is_tag[reg1], rob_tag[reg1]};
-            end
-
-            if (commit_sig && commit_reg != 5'b00000 && 
-                commit_reg == reg2 && commit_rob_tag == rob_tag[reg2]) begin
-                val2 <= commit_val;
-                rob_tag2 <= {1'b0, {rob_width{1'b0}}};
-            end else begin
-                val2 <= reg_val[reg2];
-                rob_tag2 <= {is_tag[reg2], rob_tag[reg2]};
+                val1 = reg_val[reg1];
+                rob_tag1 = {is_tag[reg1], rob_tag[reg1]};
             end
         end
     end
+    always @(*) begin
+        if (!rst && rdy) begin
+            if (commit_sig && commit_reg != 5'b00000 && 
+                commit_reg == reg2 && commit_rob_tag == rob_tag[reg2]) begin
+                val2 = commit_val;
+                rob_tag2 = {1'b0, {rob_width{1'b0}}};
+            end else begin
+                val2 = reg_val[reg2];
+                rob_tag2 = {is_tag[reg2], rob_tag[reg2]};
+            end            
+        end
+    end
+
 endmodule
