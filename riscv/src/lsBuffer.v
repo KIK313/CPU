@@ -1,2 +1,2 @@
 module lsBuffer();
-endmodule;
+endmodule

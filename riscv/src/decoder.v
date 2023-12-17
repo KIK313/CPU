@@ -16,6 +16,10 @@ module ins_decoder(
     wire[2 : 0] tp = ins[14 : 12]; 
     wire bit = ins[30 : 30];
     always @(*) begin
+        opcode = 6'b0;
+        rd = 0;
+        rs1 = 0;
+        rs2 = 0;
         case(op) 
             7'b0110111: begin // LUI
                 imm = {ins[31 : 12], 12'b0};    

@@ -18,7 +18,7 @@ module insFetch(
     output reg issue_en,
     output reg[31 : 0] once_pc, 
     output reg[5 : 0] opcode,
-    output reg rd,
+    output reg[4 : 0] rd,
     output reg[4 : 0] rs1,
     output reg[4 : 0] rs2,
     output reg[31 : 0] imm,
@@ -79,7 +79,7 @@ module insFetch(
                     if (opcode_from_id == `JAL) begin 
                         pc <= pc + imm_from_id;
                     end
-                    if (opcode_from_id == `JALR) begin // treat as wrong
+                    if (opcode_from_id == `JALR) begin // treat as wrong br
                     end
                     if (ins[6 : 0] == 7'b1100011) begin // branch
                         if (pre_bits[pc[6 : 2]][1] == 1'b1) begin
@@ -90,7 +90,7 @@ module insFetch(
                             is_br <= 1'b0;
                         end
                     end
-                    if (opcode_from_id < 6'd3 || opcode > 6'd10) pc <= pc + 4; // others
+                    if (opcode_from_id < 6'd3 || opcode > 6'd10) pc <= pc + 4; // other ins
                 end
             end
         end

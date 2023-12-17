@@ -29,7 +29,7 @@ module insCache(
     always @(posedge  clk) begin
         if (rst) begin
             for (i = 0; i < 31; i = i + 1) begin
-                valid_bit[i] = 1'b0; 
+                valid_bit[i] <= 1'b0; 
             end 
             mem_en <= 1'b0;
             is_waiting <= 1'b0;
