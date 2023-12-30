@@ -43,4 +43,8 @@ module Rob(
             
         end
     end
+
+    always @(posedge clk) begin
+        
+    end
 endmodule
