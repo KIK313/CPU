@@ -19,7 +19,7 @@ module ALU(
 
     output reg is_ok, 
     output reg[31 : 0] res,
-    output reg[5 : 0] ret_rob_id,
+    output reg[3 : 0] ret_rob_id,
     output reg is_jump,
     output reg[31 : 0] jump_pc,
 );
