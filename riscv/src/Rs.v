@@ -49,11 +49,18 @@ module Rs(
     reg[31 : 0] imm[15 : 0]; reg[31 : 0] pc[15 : 0];
 
     reg[3 : 0] next_free;
+    reg[3 : 0] rdy_pos;
+    reg is_some_rdy;
     integer i;
     always @(*) begin
         next_free = 0;
+        is_some_rdy = 0;
         for (i = 0; i < 16; i = i + 1) begin
             if (!is_busy[i]) next_free = i;      
+            if (is_busy[i] && Ri[i] && Rj[i]) begin
+                is_some_rdy = 1;
+                rdy_pos = i;
+            end
         end
     end
     always @(posedge clk) begin
@@ -72,6 +79,15 @@ module Rs(
                 Ri[next_free] <= issue_Ri; Rj[next_free] <= issue_Rj;
                 imm[next_free] <= issue_imm;
                 pc[next_free] <= issue_pc;
+            end
+            if (is_some_rdy) begin
+                work_en <= 1'b1;
+                rob_id_from_rs <= rob_id[rdy_pos];
+                opcode_from_rs <= opcode[rdy_pos];
+                val1 <= Vi[rdy_pos]; val2 <= Vj[rdy_pos];
+                imm_from_rs <= imm[rdy_pos]; pc_from_rs <= pc[rdy_pos];
+            end else begin
+                work_en <= 1'b0;
             end
             if (is_alu_ok) begin
                 for (i = 0; i < 16; i = i + 1) begin
