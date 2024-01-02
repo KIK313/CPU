@@ -16,7 +16,7 @@ module insCache(
 );
     reg valid_bit[31 : 0];
     reg[63 : 0] ins_line[31 : 0];  
-    reg[17 : 8] tag_line[31 : 0]; 
+    reg[9 : 0] tag_line[31 : 0]; 
     // 17 -> 8 tag / 7 -> 3 cache line / 2 -> 2 cache blk / 1 -> 0 00
     reg is_waiting;
     
@@ -28,7 +28,7 @@ module insCache(
     
     always @(posedge  clk) begin
         if (rst) begin
-            for (i = 0; i < 31; i = i + 1) begin
+            for (i = 0; i < 32; i = i + 1) begin
                 valid_bit[i] <= 1'b0; 
             end 
             mem_en <= 1'b0;
@@ -37,16 +37,17 @@ module insCache(
             if (!is_waiting) begin
                 if (!hit) begin                
                     mem_en <= 1'b1;
-                    addr_to_mem <= pc_addr;
+                    addr_to_mem <= {pc_addr[31 : 3], 3'b000};
                     is_waiting <= 1'b1;
                 end
             end else begin
                 if (mem_valid) begin
                     mem_en <= 1'b0;
                     is_waiting <= 1'b0;
-                    ins_line[pc_addr[7 : 3]] <= ins_blk[63 : 0]; 
-                    valid_bit[pc_addr[7 : 3]] <= 1'b1;
-                    tag_line[pc_addr[7 : 3]] <= pc_addr[17 : 8];
+                    ins_line[addr_to_mem[7 : 3]] <= ins_blk[63 : 0]; 
+                    valid_bit[addr_to_mem[7 : 3]] <= 1'b1;
+                    tag_line[addr_to_mem[7 : 3]] <= addr_to_mem[17 : 8];
+                    addr_to_mem <= 32'b0;
                 end               
             end    
         end

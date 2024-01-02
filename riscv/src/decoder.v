@@ -32,18 +32,18 @@ module ins_decoder(
                 opcode = `OP_AUI;
             end
             7'b1101111: begin // JAL
-                imm = $signed({ins[31 : 31], ins[19 : 12], ins[20 : 20], ins[30 : 21], 1'b0});
+                imm = {{12{ins[31 : 31]}}, ins[19 : 12], ins[20 : 20], ins[30 : 21], 1'b0};
                 rd = ins[11 : 7];
                 opcode = `OP_JAL;
             end
             7'b1100111: begin // JALR
-                imm = $signed(ins[31 : 20]);
+                imm = {{21{ins[31 : 31]}}, ins[30 : 20]};
                 rd = ins[11 : 7];
                 rs1 = ins[19 : 15];
                 opcode = `OP_JALR;
             end
             7'b1100011: begin 
-                imm = $signed({ins[31 : 31], ins[7 : 7], ins[30 : 25], ins[11 : 8], 1'b0});
+                imm = {{20{ins[31 : 31]}}, ins[7 : 7], ins[30 : 25], ins[11 : 8], 1'b0};
                 rs1 = ins[19 : 15];
                 rs2 = ins[24 : 20];
                 case(tp) 
@@ -56,7 +56,7 @@ module ins_decoder(
                 endcase 
             end
             7'b0000011: begin
-                imm = $signed(ins[31 : 20]);
+                imm = {{21{ins[31 : 31]}}, ins[30 : 20]};
                 rd = ins[11 : 7];
                 rs1 = ins[19 : 15];
                 case(tp)
@@ -68,7 +68,7 @@ module ins_decoder(
                 endcase
             end
             7'b0100011: begin
-                imm = $signed({ins[31 : 25], ins[11 : 7]});
+                imm = {{21{ins[31 : 31]}}, ins[30 : 25], ins[11 : 7]};
                 rs1 = ins[19 : 15];
                 rs2 = ins[24 : 20];
                 case(op)
@@ -80,37 +80,20 @@ module ins_decoder(
             7'b0010011: begin                        
                 rd = ins[11 : 7];
                 rs1 = ins[19 : 15];
+                imm = {{21{ins[31 : 31]}}, ins[30 : 20]};
                 case(op)
-                    3'b000: begin
-                        imm = $signed(ins[31 : 20]);
-                        opcode = `OP_ADDI;
-                    end  
-                    3'b010: begin
-                        imm = $signed(ins[31 : 20]);
-                        opcode = `OP_SLTI;
-                    end
-                    3'b011: begin
-                        imm = $signed(ins[31 : 20]);
-                        opcode = `OP_SLTIU;
-                    end
-                    3'b100: begin
-                        imm = $signed(ins[31 : 20]);
-                        opcode = `OP_XORI;
-                    end
-                    3'b110: begin
-                        imm = $signed(ins[31 : 20]);
-                        opcode = `OP_ORI;
-                    end
-                    3'b111: begin
-                        imm = $signed(ins[31 : 20]);
-                        opcode = `OP_ANDI;
-                    end
+                    3'b000: opcode = `OP_ADDI;
+                    3'b010: opcode = `OP_SLTI;
+                    3'b011: opcode = `OP_SLTIU;
+                    3'b100: opcode = `OP_XORI;
+                    3'b110: opcode = `OP_ORI;
+                    3'b111: opcode = `OP_ANDI;
                     3'b001: begin
-                        imm = $signed({27'b0, ins[24 : 20]});
+                        imm = {27'b0, ins[24 : 20]};
                         opcode = `OP_SLLI;
                     end
                     3'b101: begin
-                        imm = $signed({27'b0, ins[24 : 20]});
+                        imm = {27'b0, ins[24 : 20]};
                         opcode = bit ? `OP_SRAI : `OP_SRLI;
                     end
                 endcase
