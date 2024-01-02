@@ -188,7 +188,7 @@ module lsBuffer(
             end
             if (is_rob_store) begin
                 for (i = 0; i < 16; i = i + 1) begin
-                    if (rob_id[i] == rob_top_id) is_commit[i] <= 1'b1;
+                    if (is_busy[i] && rob_id[i] == rob_top_id) is_commit[i] <= 1'b1;
                 end
             end
 

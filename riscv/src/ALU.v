@@ -21,7 +21,7 @@ module ALU(
     output reg[31 : 0] res,
     output reg[3 : 0] ret_rob_id,
     output reg is_jump,
-    output reg[31 : 0] jump_pc,
+    output reg[31 : 0] jump_pc
 );
     always @(posedge clk) begin
         if (rst) begin
@@ -31,15 +31,15 @@ module ALU(
                 is_ok <= 1'b1;
                 ret_rob_id <= rob_id;
                 case(opcode) 
-                    `OP_LUI res <= imm;
-                    `OP_AUI res <= pc + imm;
-                    `OP_JAL res <= pc + 4;
-                    `OP_JALR begin
+                    `OP_LUI: res <= imm;
+                    `OP_AUI: res <= pc + imm;
+                    `OP_JAL: res <= pc + 4;
+                    `OP_JALR: begin
                         res <= pc + 4;
                         is_jump <= 1'b1;
-                        jump_pc <= (rs1 + imm) & {31{1'b1}, 1'b0};
+                        jump_pc <= (rs1 + imm) & {{31{1'b1}}, 1'b0};
                     end
-                    `OP_BEQ begin
+                    `OP_BEQ: begin
                         if (rs1 == rs2) begin
                             is_jump <= 1'b1;
                             jump_pc <= pc + imm;
@@ -48,7 +48,7 @@ module ALU(
                             jump_pc <= pc + 4;
                         end
                     end
-                    `OP_BNE begin
+                    `OP_BNE: begin
                         if (rs1 != rs2) begin
                             is_jump <= 1'b1;
                             jump_pc <= pc + imm;
@@ -57,7 +57,7 @@ module ALU(
                             jump_pc <= pc + 4;
                         end
                     end
-                    `OP_BLT begin
+                    `OP_BLT: begin
                         if ($signed(rs1) < $signed(rs2)) begin
                             is_jump <= 1'b1;
                             jump_pc <= pc + imm;
@@ -66,7 +66,7 @@ module ALU(
                             jump_pc <= pc + 4;
                         end                        
                     end
-                    `OP_BGE begin
+                    `OP_BGE: begin
                         if ($signed(rs1) >= $signed(rs2)) begin
                             is_jump <= 1'b1;
                             jump_pc <= pc + imm;
@@ -75,7 +75,7 @@ module ALU(
                             jump_pc <= pc + 4;
                         end                        
                     end
-                    `OP_BLTU begin
+                    `OP_BLTU: begin
                         if (rs1 < rs2) begin
                             is_jump <= 1'b1;
                             jump_pc <= pc + imm;
@@ -84,7 +84,7 @@ module ALU(
                             jump_pc <= pc + 4;
                         end
                     end
-                    `OP_BGEU begin
+                    `OP_BGEU: begin
                         if (rs1 >= rs2) begin
                             is_jump <= 1'b1;
                             jump_pc <= pc + imm;
@@ -93,25 +93,37 @@ module ALU(
                             jump_pc <= pc + 4;
                         end
                     end
-                    `OP_ADDI res <= rs1 + imm;
-                    `OP_SLTI res <= $signed(rs1) < $signed(imm);
-                    `OP_SLTIU res <= rs1 < imm; 
-                    `OP_XORI res <= rs1 ^ imm;
-                    `OP_ORI  res <= rs1 | imm;
-                    `OP_ANDI res <= rs1 & imm;
-                    `OP_SLLI res <= rs1 << imm[5 : 0];
-                    `OP_SRLI res <= rs1 >> imm[5 : 0];
-                    `OP_SRAI res <= rs1 >>> imm[5 : 0]; 
-                    `OP_ADD  res <= rs1 + rs2;
-                    `OP_SUB  res <= rs1 - rs2;
-                    `OP_SLL  res <= rs1 << rs2[5 : 0];
-                    `OP_SLT  res <= $signed(rs1) < $signed(rs2);
-                    `OP_SLTU res <= rs1 < rs2;
-                    `OP_XOR res <= rs1 ^ rs2;
-                    `OP_SRL res <= rs1 >> rs2[5 : 0];
-                    `OP_SRA res <= rs1 >>> rs2[5 : 0];
-                    `OP_OR  res <= rs1 | rs2;
-                    `OP_AND res <= rs1 & rs2;
+                    `OP_ADDI: res <= rs1 + imm;
+                    `OP_SLTI: begin
+                        if ($signed(rs1) < $signed(imm)) res <= {31'b0, 1'b1};
+                        else res <= 32'b0;
+                    end
+                    `OP_SLTIU: begin
+                        if (rs1 < imm) res <= {31'b0, 1'b1};
+                        else res <= 32'b0;
+                    end
+                    `OP_XORI: res <= rs1 ^ imm;
+                    `OP_ORI:  res <= rs1 | imm;
+                    `OP_ANDI: res <= rs1 & imm;
+                    `OP_SLLI: res <= rs1 << imm[5 : 0];
+                    `OP_SRLI: res <= rs1 >> imm[5 : 0];
+                    `OP_SRAI: res <= rs1 >>> imm[5 : 0]; 
+                    `OP_ADD:  res <= rs1 + rs2;
+                    `OP_SUB:  res <= rs1 - rs2;
+                    `OP_SLL:  res <= rs1 << rs2[5 : 0];
+                    `OP_SLT: begin
+                        if ($signed(rs1) < $signed(rs2)) res <= {31'b0, 1'b1};
+                        else res <= 32'b0;
+                    end 
+                    `OP_SLTU: begin
+                        if(rs1 < rs2) res <= {31'b0, 1'b1};
+                        else res <= 32'b0;
+                    end
+                    `OP_XOR: res <= rs1 ^ rs2;
+                    `OP_SRL: res <= rs1 >> rs2[5 : 0];
+                    `OP_SRA: res <= rs1 >>> rs2[5 : 0];
+                    `OP_OR:  res <= rs1 | rs2;
+                    `OP_AND: res <= rs1 & rs2;
                 endcase                
             end else begin
                 is_ok <= 1'b0;

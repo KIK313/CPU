@@ -26,6 +26,7 @@ module Rs(
     output reg[31 : 0] val2,
     output reg[31 : 0] imm_from_rs,
     output reg[31 : 0] pc_from_rs,
+
     // update from ALU
     input wire is_alu_ok,
     input wire[3 : 0] rob_id_from_alu,
@@ -86,6 +87,7 @@ module Rs(
                 opcode_from_rs <= opcode[rdy_pos];
                 val1 <= Vi[rdy_pos]; val2 <= Vj[rdy_pos];
                 imm_from_rs <= imm[rdy_pos]; pc_from_rs <= pc[rdy_pos];
+                is_busy[rdy_pos] <= 1'b0;
             end else begin
                 work_en <= 1'b0;
             end

@@ -13,17 +13,13 @@ module Rob(
     input wire[5 : 0] issue_opcode,
     input wire[4 : 0] issue_rd,
     input wire[4 : 0] issue_pre_reg_id,
-    input wire[31 : 0] issue_val,
-    input wire[31 : 0] issue_des_pc,
     input wire issue_pre_br,
-    input wire issue_tr_br,
     output wire free_rob_id,
 
     output wire clear,
 
     //communicate with insFetch
     output wire is_full,
-    output reg change_pc_en,
     output reg[31 : 0] new_pc,
     output reg pre_upt_en,
     output reg[4 : 0] pre_upt_reg_id,
@@ -53,7 +49,6 @@ module Rob(
     output reg[4 : 0] upt_rf_reg_id
 );
     reg[3 : 0] head;
-    reg[3 : 0] tail;
     reg[3 : 0] siz;
     reg[3 : 0] next_free;
 
@@ -81,14 +76,13 @@ module Rob(
     always @(posedge clk) begin
         if (rst || is_clear) begin
             head <= 4'd0;
-            tail <= 4'd15;
             next_free <= 4'b0;
             for (i = 0; i < 16; i = i + 1) begin
                 is_busy[i] <= 1'b0;
                 is_rdy[i] <= 1'b0;
+                br_tr_bit[i] <= 1'b0;
             end
             is_clear <= 0;
-            change_pc_en <= 1'b0;
             pre_upt_en <= 1'b0;
             is_rob_store <= 1'b0;
         end else if (rdy) begin
@@ -98,12 +92,8 @@ module Rob(
                 rd[next_free] <= issue_rd;
                 is_busy[next_free] <= 1'b1;
                 is_rdy[next_free] <= issue_opcode >= `OP_SB && issue_opcode <= `OP_SW;
-                val[next_free] <= issue_val;
-                des_pc[next_free] <= issue_des_pc;
                 pre_reg_id[next_free] <= issue_pre_reg_id;
-                br_tr_bit[next_free] <= issue_tr_br;
                 br_pre_bit[next_free] <= issue_pre_br;
-                tail <= (tail + 1) & 4'b1111; 
                 next_free <= (next_free + 1) & 4'b1111;
             end
             if (is_busy[head] && is_rdy[head]) begin
@@ -111,7 +101,6 @@ module Rob(
                 upt_rob_tag <= head;
                 upt_rob_val <= val[head];
                 if (opcode[head] >= `OP_BEQ && opcode[head] <= `OP_BGEU) begin
-                    change_pc_en <= (br_tr_bit[head] ^ br_pre_bit[head]);
                     is_clear <= (br_tr_bit[head] ^ br_pre_bit[head]);
                     new_pc <= des_pc[head];
                     pre_upt_en <= 1'b1;
@@ -119,17 +108,14 @@ module Rob(
                     pre_upt_reg_id <= pre_reg_id[head];
                 end else if (opcode[head] == `OP_JALR) begin
                     pre_upt_en <= 1'b0;
-                    change_pc_en <= 1'b1;
                     new_pc <= des_pc[head];
                     is_clear <= 1'b1;
                 end else begin
-                    change_pc_en <= 1'b0;
                     pre_upt_en <= 1'b0;
                 end
-                head = (head + 1) &  4'b1111;
+                head <= (head + 1) &  4'b1111;
             end else begin
                 is_rob_commit <= 1'b0;
-                change_pc_en <= 1'b0;
                 pre_upt_en <= 1'b0;
             end
 
