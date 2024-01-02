@@ -47,24 +47,12 @@ module ins_decoder(
                 rs1 = ins[19 : 15];
                 rs2 = ins[24 : 20];
                 case(tp) 
-                    3'b000: begin // beq
-                        opcode = `OP_BEQ;
-                    end
-                    3'b001: begin // bne
-                        opcode = `OP_BNE;
-                    end
-                    3'b100: begin // blt 
-                        opcode = `OP_BLT;
-                    end 
-                    3'b101: begin // bge
-                        opcode = `OP_BGE;
-                    end
-                    3'b110: begin // bltu
-                        opcode = `OP_BLTU;
-                    end
-                    3'b111: begin // bgeu 
-                        opcode = `OP_BGEU;
-                    end
+                    3'b000: opcode = `OP_BEQ;
+                    3'b001: opcode = `OP_BNE;
+                    3'b100: opcode = `OP_BLT;
+                    3'b101: opcode = `OP_BGE;
+                    3'b110: opcode = `OP_BLTU;
+                    3'b111: opcode = `OP_BGEU;
                 endcase 
             end
             7'b0000011: begin
@@ -72,21 +60,11 @@ module ins_decoder(
                 rd = ins[11 : 7];
                 rs1 = ins[19 : 15];
                 case(tp)
-                    3'b000: begin // lb
-                        opcode = `OP_LB;
-                    end
-                    3'b001: begin // lh
-                        opcode = `OP_LH;
-                    end
-                    3'b010: begin // lw
-                        opcode = `OP_LW;
-                    end
-                    3'b100: begin // lbu
-                        opcode = `OP_LBU;
-                    end
-                    3'b101: begin // lhu
-                        opcode = `OP_LHU;
-                    end
+                    3'b000: opcode = `OP_LB;
+                    3'b001: opcode = `OP_LH;
+                    3'b010: opcode = `OP_LW;
+                    3'b100: opcode = `OP_LBU;
+                    3'b101: opcode = `OP_LHU;
                 endcase
             end
             7'b0100011: begin
@@ -94,15 +72,9 @@ module ins_decoder(
                 rs1 = ins[19 : 15];
                 rs2 = ins[24 : 20];
                 case(op)
-                    3'b000: begin // sb
-                        opcode = `OP_SB;
-                    end 
-                    3'b001: begin
-                        opcode = `OP_SH;
-                    end
-                    3'b010: begin
-                        opcode = `OP_SW;
-                    end
+                    3'b000: opcode = `OP_SB;
+                    3'b001: opcode = `OP_SH;
+                    3'b010: opcode = `OP_SW;
                 endcase
             end
             7'b0010011: begin                        
@@ -148,30 +120,14 @@ module ins_decoder(
                 rs1 = ins[19 : 15];
                 rs2 = ins[24 : 20];
                 case(op)
-                    3'b000: begin
-                        opcode = bit ? `OP_SUB : `OP_ADD;
-                    end   
-                    3'b001: begin
-                        opcode = `OP_SLL;
-                    end
-                    3'b010: begin
-                        opcode = `OP_SLT;
-                    end
-                    3'b011: begin
-                        opcode = `OP_SLTU;
-                    end
-                    3'b100: begin
-                        opcode = `OP_XOR;
-                    end
-                    3'b101: begin
-                        opcode = bit ? `OP_SRA : `OP_SRL;
-                    end
-                    3'b110: begin
-                        opcode = `OP_OR;
-                    end
-                    3'b111: begin
-                        opcode = `OP_AND;
-                    end
+                    3'b000: opcode = bit ? `OP_SUB : `OP_ADD; 
+                    3'b001: opcode = `OP_SLL;
+                    3'b010: opcode = `OP_SLT;
+                    3'b011: opcode = `OP_SLTU;
+                    3'b100: opcode = `OP_XOR;
+                    3'b101: opcode = bit ? `OP_SRA : `OP_SRL;
+                    3'b110: opcode = `OP_OR;
+                    3'b111: opcode = `OP_AND;
                 endcase
             end
             default: begin
