@@ -86,6 +86,7 @@ module lsBuffer(
             if (is_busy[i]) siz = siz + 1;
         end
     end
+    integer j;
     always @(posedge clk) begin
         if (rst) begin
             is_load_upt <= 1'b0;
@@ -93,9 +94,9 @@ module lsBuffer(
             head <= 4'b0000; tail <= 4'b1111;
             next_free <= 4'b0000; last_commit_pos <= 4'b1111;
             for (i = 0; i < 16; i = i + 1) begin
-                is_busy[i] <= 0;
-                is_commit[i] <= 0;
-                is_waiting[i] <= 0;
+                is_busy[i] <= 1'b0;
+                is_commit[i] <= 1'b0;
+                is_waiting[i] <= 1'b0;
                 Qi[i] <= 4'b0;
                 Qj[i] <= 4'b0;
             end    
@@ -105,11 +106,11 @@ module lsBuffer(
             if (clear) begin 
                 tail <= last_commit_pos;
                 next_free <= (last_commit_pos + 1) & 4'b1111;
-                for (i = 0; i < 16; i = i + 1) begin
-                    if (!is_commit[i]) begin
-                        is_busy[i] <= 0;
-                        is_commit[i] <= 0;
-                        is_waiting[i] <= 0;
+                for (j = 0; j < 16; j = j + 1) begin
+                    if (!is_commit[j]) begin
+                        is_busy[j] <= 1'b0;
+                        is_commit[j] <= 1'b0;
+                        is_waiting[j] <= 1'b0;
                     end
                 end
             end else begin 
@@ -129,20 +130,24 @@ module lsBuffer(
             end                
             if (is_busy[head] && Ri[head] && Rj[head]) begin
                 if (opcode[head] >= `OP_SB) begin // store
-                    if (is_waiting[head] && ls_done) begin
-                        is_busy[head] <= 1'b0;
-                        head <= (head + 1) & 4'b1111;
-                        ls_sig <= 1'b0;
-                    end
-                    if (!is_waiting[head] && is_commit[head]) begin
-                        is_waiting[head] <= 1'b1;
-                        ls_sig <= 1'b1;
-                        store_val <= Vj[head];
-                        load_or_store <= 1'b1;
-                        ls_addr <= Vi[head] + imm[head]; 
-                        if (opcode[head] == `OP_SB) len <= 3'b001;
-                        if (opcode[head] == `OP_SH) len <= 3'b010;                        
-                        if (opcode[head] == `OP_SW) len <= 3'b100;
+                    if (is_commit[head]) begin
+                        if (is_waiting[head] && ls_done) begin
+                            is_busy[head] <= 1'b0;
+                            is_commit[head] <= 1'b0;
+                            is_waiting[head] <= 1'b0;
+                            head <= (head + 1) & 4'b1111;
+                            ls_sig <= 1'b0;
+                        end
+                        if (!is_waiting[head] && is_commit[head]) begin
+                            is_waiting[head] <= 1'b1;
+                            ls_sig <= 1'b1;
+                            store_val <= Vj[head];
+                            load_or_store <= 1'b1;
+                            ls_addr <= Vi[head] + imm[head]; 
+                            if (opcode[head] == `OP_SB) len <= 3'b001;
+                            if (opcode[head] == `OP_SH) len <= 3'b010;                        
+                            if (opcode[head] == `OP_SW) len <= 3'b100;
+                        end
                     end
                 end else if (!clear) begin // load
                     if (is_waiting[head] && ls_done) begin
@@ -170,6 +175,7 @@ module lsBuffer(
                             end
                         endcase
                         is_busy[head] <= 1'b0;
+                        is_commit[head] <= 1'b0;
                         last_commit_pos <= head;
                         head <= (head + 1) & 4'b1111;
                         ls_sig <= 1'b0;
@@ -189,7 +195,7 @@ module lsBuffer(
             end
             if (is_rob_store) begin
                 for (i = 0; i < 16; i = i + 1) begin
-                    if (is_busy[i] && rob_id[i] == rob_top_id) begin
+                    if (is_busy[i] && !is_commit[i] && rob_id[i] == rob_top_id) begin
                         is_commit[i] <= 1'b1;
                         last_commit_pos <= i;
                     end

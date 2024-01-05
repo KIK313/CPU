@@ -82,7 +82,7 @@ module Rob(
                 is_rdy[i] <= 1'b0;
                 br_tr_bit[i] <= 1'b0;
             end
-            is_clear <= 0;
+            is_clear <= 1'b0;
             pre_upt_en <= 1'b0;
             is_rob_store <= 1'b0;
         end else if (rdy) begin
