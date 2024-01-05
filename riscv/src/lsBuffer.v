@@ -153,8 +153,8 @@ module lsBuffer(
                                 upt_val <= {{24{ls_data[7]}}, ls_data[7 : 0]};
                             end
                             `OP_LH: begin
-                                ls_upt_val <= {{16{ls_data[7]}}, ls_data[15 : 0]};
-                                upt_val <= {{16{ls_data[7]}}, ls_data[15 : 0]};                                
+                                ls_upt_val <= {{16{ls_data[15]}}, ls_data[15 : 0]};
+                                upt_val <= {{16{ls_data[15]}}, ls_data[15 : 0]};                                
                             end
                             `OP_LW: begin
                                 ls_upt_val <= ls_data;
@@ -170,7 +170,8 @@ module lsBuffer(
                             end
                         endcase
                         is_busy[head] <= 1'b0;
-                        head = head + 1;
+                        last_commit_pos <= head;
+                        head <= (head + 1) & 4'b1111;
                         ls_sig <= 1'b0;
                     end
                     if (!is_waiting[head]) begin
