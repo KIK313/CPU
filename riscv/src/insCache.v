@@ -1,3 +1,6 @@
+`ifndef INSCACHE
+`define INSCACHE
+
 module insCache(
     input wire clk,
     input wire rst,
@@ -53,3 +56,4 @@ module insCache(
         end
     end
 endmodule
+`endif

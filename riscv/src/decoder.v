@@ -71,7 +71,7 @@ module ins_decoder(
                 imm = {{21{ins[31 : 31]}}, ins[30 : 25], ins[11 : 7]};
                 rs1 = ins[19 : 15];
                 rs2 = ins[24 : 20];
-                case(op)
+                case(tp)
                     3'b000: opcode = `OP_SB;
                     3'b001: opcode = `OP_SH;
                     3'b010: opcode = `OP_SW;
@@ -81,7 +81,7 @@ module ins_decoder(
                 rd = ins[11 : 7];
                 rs1 = ins[19 : 15];
                 imm = {{21{ins[31 : 31]}}, ins[30 : 20]};
-                case(op)
+                case(tp)
                     3'b000: opcode = `OP_ADDI;
                     3'b010: opcode = `OP_SLTI;
                     3'b011: opcode = `OP_SLTIU;
@@ -102,7 +102,7 @@ module ins_decoder(
                 rd = ins[11 : 7];
                 rs1 = ins[19 : 15];
                 rs2 = ins[24 : 20];
-                case(op)
+                case(tp)
                     3'b000: opcode = bit ? `OP_SUB : `OP_ADD; 
                     3'b001: opcode = `OP_SLL;
                     3'b010: opcode = `OP_SLT;

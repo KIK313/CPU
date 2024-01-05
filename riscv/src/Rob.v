@@ -113,6 +113,7 @@ module Rob(
                 end else begin
                     pre_upt_en <= 1'b0;
                 end
+                is_busy[head] <= 1'b0;
                 head <= (head + 1) &  4'b1111;
             end else begin
                 is_rob_commit <= 1'b0;

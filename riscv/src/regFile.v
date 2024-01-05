@@ -38,11 +38,11 @@ module regFile(
         end else if (rdy) begin
             // modify val
             if (commit_sig && (commit_reg != 5'b00000)) begin 
-                reg_val[commit_reg] <= commit_reg;
+                reg_val[commit_reg] <= commit_val;
             end
             
             // modify tag
-            if (!clear) begin 
+            if (clear) begin 
                 for (i = 0; i < 32; i = i + 1) begin
                     is_tag[i] <= 1'b0;
                 end

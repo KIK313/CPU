@@ -131,7 +131,7 @@ module lsBuffer(
                 if (opcode[head] >= `OP_SB) begin // store
                     if (is_waiting[head] && ls_done) begin
                         is_busy[head] <= 1'b0;
-                        head <= head + 1;
+                        head <= (head + 1) & 4'b1111;
                         ls_sig <= 1'b0;
                     end
                     if (!is_waiting[head] && is_commit[head]) begin
@@ -189,7 +189,10 @@ module lsBuffer(
             end
             if (is_rob_store) begin
                 for (i = 0; i < 16; i = i + 1) begin
-                    if (is_busy[i] && rob_id[i] == rob_top_id) is_commit[i] <= 1'b1;
+                    if (is_busy[i] && rob_id[i] == rob_top_id) begin
+                        is_commit[i] <= 1'b1;
+                        last_commit_pos <= i;
+                    end
                 end
             end
 

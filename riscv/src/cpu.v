@@ -109,7 +109,6 @@ insCache _insCache(
 
   wire lsb_full;
   wire rob_full;
-  wire rs_full;
   
   wire[31 : 0] rob_new_pc;
   wire rob_upt_pre_en;
@@ -137,7 +136,6 @@ insFetch _insFetch(
     .is_br (insFetch_is_br),
 
     // communicate with rs,rob,lsb
-    .rs_full (rs_full),
     .rob_full (rob_full),
     .lsb_full (lsb_full),
 

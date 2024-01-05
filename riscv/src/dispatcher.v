@@ -67,7 +67,7 @@ module dispatcher(
     assign query_rg1 = rs1;
     assign query_rg2 = rs2;
     assign issue_reg_id = rd;
-    assign issue_rob_id = rob_id;
+    assign issue_rob_tag = rob_id;
     
     assign dispatch_rs_en = !rst && rdy && issue_en && !is_ls;
     assign pre_reg_id = pc[6 : 2];

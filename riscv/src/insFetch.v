@@ -25,7 +25,6 @@ module insFetch(
     output reg is_br,
 
     // communicate with rs,rob,lsb
-    input wire rs_full,
     input wire rob_full,
     input wire lsb_full,
 
@@ -67,7 +66,7 @@ module insFetch(
                 pc <= new_pc;
                 issue_en <= 1'b0;
             end else begin
-                if (hit && (!rs_full) && (!rob_full) && (!lsb_full)) begin
+                if (hit && (!rob_full) && (!lsb_full)) begin
                     issue_en <= 1'b1;
                     opcode <= opcode_from_id;
                     rd <= rd_from_id;
