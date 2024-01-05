@@ -1,3 +1,6 @@
+`ifndef REGFILE
+`define REGFILE
+
 module regFile(
     input wire clk, 
     input wire rst,
@@ -84,3 +87,4 @@ module regFile(
     end
 
 endmodule
+`endif

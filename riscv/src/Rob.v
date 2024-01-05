@@ -14,7 +14,7 @@ module Rob(
     input wire[4 : 0] issue_rd,
     input wire[4 : 0] issue_pre_reg_id,
     input wire issue_pre_br,
-    output wire free_rob_id,
+    output wire[3 : 0] free_rob_id,
 
     output wire clear,
 
@@ -27,7 +27,7 @@ module Rob(
 
     // update from lsb
     input wire lsb_upt_en,
-    input wire lsb_upt_rob_id,
+    input wire[3 : 0] lsb_upt_rob_id,
     input wire[31 : 0] lsb_upt_val, 
 
     // update from alu
@@ -39,7 +39,7 @@ module Rob(
 
     // to update vals in rs and lsb
     output reg is_rob_commit,
-    output reg upt_rob_tag,
+    output reg[3 : 0] upt_rob_tag,
     output reg[31: 0] upt_rob_val,
     
     // to let store in lsb prepare to work

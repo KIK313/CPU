@@ -1,3 +1,6 @@
+`ifndef RS 
+`define RS 
+
 module Rs(
     input wire clk,
     input wire rst,
@@ -136,3 +139,4 @@ module Rs(
         end
     end    
 endmodule
+`endif

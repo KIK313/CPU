@@ -41,7 +41,7 @@ module dispatcher(
     
 
     // commnunicate with rob
-    input wire rob_id,
+    input wire[3 : 0] rob_id,
     input wire is_clear,
     output wire dispatch_rob_en,
     output wire[4 : 0] pre_reg_id,
@@ -63,7 +63,7 @@ module dispatcher(
     assign dis_opcode = opcode;
     assign dis_rob_id = rob_id;
 
-    assign issue_sig = issue_en;
+    assign issue_sig = issue_en && rdy && !rst;
     assign query_rg1 = rs1;
     assign query_rg2 = rs2;
     assign issue_reg_id = rd;
