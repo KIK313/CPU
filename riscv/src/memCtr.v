@@ -60,14 +60,7 @@ module memCtr (
                     ls_done <= 1'b0;
                     ins_fetch_done <= 1'b0;
                     if (!ls_done && !ins_fetch_done) begin
-                        if (ins_fetch_sig && !clear) begin
-                            state <= INFET;
-                            mem_addr <= ins_addr;
-                            cur_addr <= ins_addr + 1;
-                            len_done <= 4'b0;
-                            len_need_done <= 4'b1000;
-                            mem_wr <= 1'b0; 
-                        end else if (ls_sig) begin
+                        if (ls_sig) begin
                             if (ls_wr) begin
                                 state <= STORE;
                                 mem_addr <= 0;
@@ -83,7 +76,38 @@ module memCtr (
                                 len_need_done <= {{1'b0}, len};
                                 cur_addr <= ls_addr + 1;
                             end
+                        end else if (ins_fetch_sig && !clear) begin
+                            state <= INFET;
+                            mem_addr <= ins_addr;
+                            cur_addr <= ins_addr + 1;
+                            len_done <= 4'b0;
+                            len_need_done <= 4'b1000;
+                            mem_wr <= 1'b0; 
                         end
+                        // if (ins_fetch_sig && !clear) begin
+                        //     state <= INFET;
+                        //     mem_addr <= ins_addr;
+                        //     cur_addr <= ins_addr + 1;
+                        //     len_done <= 4'b0;
+                        //     len_need_done <= 4'b1000;
+                        //     mem_wr <= 1'b0; 
+                        // end else if (ls_sig) begin
+                        //     if (ls_wr) begin
+                        //         state <= STORE;
+                        //         mem_addr <= 0;
+                        //         mem_wr <= 1'b0;
+                        //         cur_addr <= ls_addr;
+                        //         len_done <= 4'b0;
+                        //         len_need_done <= {{1'b0}, len};
+                        //     end else if(!clear) begin
+                        //         state <= LOAD;
+                        //         mem_addr <= ls_addr;
+                        //         mem_wr <= 1'b0;
+                        //         len_done <= 4'b0;
+                        //         len_need_done <= {{1'b0}, len};
+                        //         cur_addr <= ls_addr + 1;
+                        //     end
+                        // end
                     end else begin
                         mem_wr <= 1'b0;
                         mem_addr <= 32'b0;

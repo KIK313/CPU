@@ -204,40 +204,46 @@ module lsBuffer(
 
             if (alu_done) begin
                 for (i = 0; i < 16; i = i + 1) begin
-                    if (!Ri[i] && Qi[i] == upt_tag_from_alu) begin
-                        Ri[i] <= 1'b1;
-                        Vi[i] <= upt_val_from_alu;
+                    if (is_busy[i]) begin // if not, may collide with issue 
+                        if (!Ri[i] && Qi[i] == upt_tag_from_alu) begin
+                            Ri[i] <= 1'b1;
+                            Vi[i] <= upt_val_from_alu;
+                        end
+                        if (!Rj[i] && Qj[i] == upt_tag_from_alu) begin
+                            Rj[i] <= 1'b1;
+                            Vj[i] <= upt_val_from_alu;
+                        end 
                     end
-                    if (!Rj[i] && Qj[i] == upt_tag_from_alu) begin
-                        Rj[i] <= 1'b1;
-                        Vj[i] <= upt_val_from_alu;
-                    end 
                 end
             end
 
             if (rob_commit) begin
                 for (i = 0; i < 16; i = i + 1) begin
-                    if (!Ri[i] && Qi[i] == upt_tag_from_rob) begin
-                        Ri[i] <= 1'b1;
-                        Vi[i] <= upt_val_from_rob;
+                    if (is_busy[i]) begin
+                        if (!Ri[i] && Qi[i] == upt_tag_from_rob) begin
+                            Ri[i] <= 1'b1;
+                            Vi[i] <= upt_val_from_rob;
+                        end
+                        if (!Rj[i] && Qj[i] == upt_tag_from_rob) begin
+                            Rj[i] <= 1'b1;
+                            Vj[i] <= upt_val_from_rob;
+                        end 
                     end
-                    if (!Rj[i] && Qj[i] == upt_tag_from_rob) begin
-                        Rj[i] <= 1'b1;
-                        Vj[i] <= upt_val_from_rob;
-                    end 
                 end
             end
 
             if (is_load_upt) begin
                 for (i = 0; i < 16; i = i + 1) begin
-                    if (!Ri[i] && Qi[i] == upt_rob_tag) begin
-                        Ri[i] <= 1'b1;
-                        Vi[i] <= upt_val;
+                    if (is_busy[i]) begin
+                        if (!Ri[i] && Qi[i] == upt_rob_tag) begin
+                            Ri[i] <= 1'b1;
+                            Vi[i] <= upt_val;
+                        end
+                        if (!Rj[i] && Qj[i] == upt_rob_tag) begin
+                            Rj[i] <= 1'b1;
+                            Vj[i] <= upt_val;
+                        end                         
                     end
-                    if (!Rj[i] && Qj[i] == upt_rob_tag) begin
-                        Rj[i] <= 1'b1;
-                        Vj[i] <= upt_val;
-                    end 
                 end               
             end
         end
