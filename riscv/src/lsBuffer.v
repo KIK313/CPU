@@ -149,7 +149,8 @@ module lsBuffer(
                             if (opcode[head] == `OP_SW) len <= 3'b100;
                         end
                     end
-                end else if (!clear) begin // load
+                end else begin 
+                    if (!clear) begin // load
                     if (is_waiting[head] && ls_done) begin
                         ls_rob_tag <= rob_id[head];
                         case (opcode[head])
@@ -191,7 +192,8 @@ module lsBuffer(
                             len <= 3'b010;
                         if (opcode[head] == `OP_LW) len <= 3'b100;
                     end
-                end
+                    end else ls_sig <= 1'b0;
+                end 
             end
             if (is_rob_store) begin
                 for (i = 0; i < 16; i = i + 1) begin
@@ -202,7 +204,7 @@ module lsBuffer(
                 end
             end
 
-            if (alu_done) begin
+            if (alu_done && !clear) begin
                 for (i = 0; i < 16; i = i + 1) begin
                     if (is_busy[i]) begin // if not, may collide with issue 
                         if (!Ri[i] && Qi[i] == upt_tag_from_alu) begin
@@ -232,7 +234,7 @@ module lsBuffer(
                 end
             end
 
-            if (is_load_upt) begin
+            if (is_load_upt && !clear) begin
                 for (i = 0; i < 16; i = i + 1) begin
                     if (is_busy[i]) begin
                         if (!Ri[i] && Qi[i] == upt_rob_tag) begin

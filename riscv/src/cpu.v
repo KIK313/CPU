@@ -420,7 +420,7 @@ ALU _ALU(
     .rs2 (rs_alu_val2),
     .imm (rs_alu_imm), 
     .pc (rs_alu_pc),
-
+    .clear (clear),
     .is_ok (alu_upt_en), 
     .res (alu_upt_val),
     .ret_rob_id (alu_upt_rob_id),

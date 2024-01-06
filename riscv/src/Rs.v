@@ -96,30 +96,34 @@ module Rs(
             end
             if (is_alu_ok) begin
                 for (i = 0; i < 16; i = i + 1) begin
-                    if (!Ri[i] && Qi[i] == rob_id_from_alu) begin
-                        Ri[i] <= 1'b1;
-                        Qi[i] <= 4'b0;
-                        Vi[i] <= res_from_alu;
-                    end
-                    if (!Rj[i] && Qj[i] == rob_id_from_alu) begin
-                        Rj[i] <= 1'b1;
-                        Qj[i] <= 4'b0;
-                        Vj[i] <= res_from_alu;
+                    if (is_busy[i]) begin
+                        if (!Ri[i] && Qi[i] == rob_id_from_alu) begin
+                            Ri[i] <= 1'b1;
+                            Qi[i] <= 4'b0;
+                            Vi[i] <= res_from_alu;
+                        end
+                        if (!Rj[i] && Qj[i] == rob_id_from_alu) begin
+                            Rj[i] <= 1'b1;
+                            Qj[i] <= 4'b0;
+                            Vj[i] <= res_from_alu;
+                        end
                     end
                 end
             end
             if (is_rob_commit) begin
                 for (i = 0; i < 16; i = i + 1) begin
-                    if (!Ri[i] && Qi[i] == rob_id_from_rob) begin
-                        Ri[i] <= 1'b1;
-                        Qi[i] <= 4'b0;
-                        Vi[i] <= res_from_rob;
+                    if (is_busy[i]) begin
+                        if (!Ri[i] && Qi[i] == rob_id_from_rob) begin
+                            Ri[i] <= 1'b1;
+                            Qi[i] <= 4'b0;
+                            Vi[i] <= res_from_rob;
+                        end
+                        if (!Rj[i] && Qj[i] == rob_id_from_rob) begin
+                            Rj[i] <= 1'b1;
+                            Qj[i] <= 4'b0;
+                            Vj[i] <= res_from_rob;
+                        end 
                     end
-                    if (!Rj[i] && Qj[i] == rob_id_from_rob) begin
-                        Rj[i] <= 1'b1;
-                        Qj[i] <= 4'b0;
-                        Vj[i] <= res_from_rob;
-                    end 
                 end
             end
             if (is_lsb_ok) begin

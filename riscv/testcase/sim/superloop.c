@@ -30,7 +30,7 @@ int main() {
               && e!=f && e!=h && e!=i && e!=j && e!=k
               && f!=h && f!=i && f!=j && f!=k && i!=j && h!=k)
 		{
-			total++;
+			total++; 
 		}
 	
 	outlln(total);

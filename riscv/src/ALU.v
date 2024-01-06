@@ -16,6 +16,8 @@ module ALU(
     input wire[31 : 0] rs2,
     input wire[31 : 0] imm,
     input wire[31 : 0] pc,
+    
+    input wire clear,
 
     output reg is_ok, 
     output reg[31 : 0] res,
@@ -27,7 +29,7 @@ module ALU(
         if (rst) begin
             is_ok <= 1'b0;
         end else if(rdy) begin
-            if (work_en) begin
+            if (work_en && !clear) begin
                 is_ok <= 1'b1;
                 ret_rob_id <= rob_id;
                 case(opcode) 
