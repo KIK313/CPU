@@ -44,7 +44,8 @@ module Rob(
     
     // to let store in lsb prepare to work
     output reg is_rob_store,
-    
+    output reg is_rob_load,
+    output reg[3 : 0] rob_load_id,
     // to update RF
     output reg[4 : 0] upt_rf_reg_id
 );
@@ -85,6 +86,8 @@ module Rob(
             is_clear <= 1'b0;
             pre_upt_en <= 1'b0;
             is_rob_store <= 1'b0;
+            is_rob_load <= 1'b0;
+            rob_load_id <= 4'b0;
         end else if (rdy) begin
             upt_rf_reg_id <= rd[head];
             if (issue_en) begin
@@ -123,7 +126,10 @@ module Rob(
             if (is_busy[head] && opcode[head] >= `OP_SB && opcode[head] <= `OP_SW) begin
                 is_rob_store <= 1'b1;
             end else is_rob_store <= 1'b0;
-
+            if (is_busy[head] && opcode[head] >= `OP_LB && opcode[head] <= `OP_LHU) begin
+                is_rob_load <= 1'b1;
+                rob_load_id <= head;
+            end else is_rob_load <= 1'b0;
             if (alu_upt_en) begin
                 is_rdy[alu_upt_rob_id] <= 1'b1;
                 val[alu_upt_rob_id] <= alu_upt_val;

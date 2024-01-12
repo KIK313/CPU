@@ -52,6 +52,72 @@ module cpu(
     wire[31 : 0] ls_work_val;
     wire memCtr_ls_done;
     wire[31 : 0] memCtr_ls_data;
+    wire[31 : 0] insFetch_insCache_pc;
+    wire insCache_hit;
+    wire[31 : 0] insCache_ins;
+    
+      wire insFetch_en;
+  wire[31 : 0] insFetch_pc;
+  wire[5 : 0] insFetch_opcode;
+  wire[4 : 0] insFetch_rd;
+  wire[4 : 0] insFetch_rs1;
+  wire[4 : 0] insFetch_rs2;
+  wire[31 : 0] insFetch_imm;
+  wire insFetch_is_br; 
+
+  wire lsb_full;
+  wire rob_full;
+  
+  wire[31 : 0] rob_new_pc;
+  wire rob_upt_pre_en;
+  wire[4 : 0] rob_upt_pre_reg;
+  wire rob_upt_pre_is_br;
+
+    wire dispatch_issue_sig;
+  wire dispatch_rob_en;
+  wire dispatch_rs_en;
+  wire dispatch_lsb_en;
+  wire[31 : 0] issue_pc;
+  wire[31 : 0] issue_imm;
+  wire[4 : 0] issue_pre_reg;
+  wire issue_is_br;
+  wire[5 : 0] issue_opcode;
+  wire[31 : 0] issue_Vi; wire[3 : 0] issue_Qi; wire issue_Ri;
+  wire[31 : 0] issue_Vj; wire[3 : 0] issue_Qj; wire issue_Rj;
+  wire[3 : 0] issue_rob_id;
+
+    wire[4 : 0] rf_rd;
+  wire[3 : 0] rf_rob_tag;
+  wire[4 : 0] rf_rg1;
+  wire[31 : 0] rf_v1;
+  wire[4 : 0] rf_tag1;
+  wire[4 : 0] rf_rg2;
+  wire[31 : 0] rf_v2;
+  wire[4 : 0] rf_tag2; 
+
+    wire ls_upt_en;
+  wire[3 : 0] ls_upt_rob_id;
+  wire[31 : 0] ls_upt_val;
+    wire is_rob_commit;
+  wire[3 : 0] rob_commit_id;
+  wire[31 : 0] rob_commit_val;
+  wire is_rob_store;
+  wire[4 : 0] rob_commit_reg;
+  wire[3 : 0] free_rob_id;
+    wire alu_work_en;
+  wire[5 : 0] rs_alu_opcode;
+  wire[3 : 0] rs_alu_rob_id;
+  wire[31 : 0] rs_alu_val1;
+  wire[31 : 0] rs_alu_val2;
+  wire[31 : 0] rs_alu_pc;
+  wire[31 : 0] rs_alu_imm;
+    wire alu_upt_en;
+  wire[31 : 0] alu_upt_val;
+  wire[3 : 0] alu_upt_rob_id;
+  wire alu_upt_is_br;
+  wire[31 : 0] alu_upt_br_pc;
+  wire is_rob_load;
+  wire[3 : 0] rob_load_id;
 memCtr _memCtr (
     .clk (clk_in),
     .rst (rst_in),
@@ -79,9 +145,6 @@ memCtr _memCtr (
     .ls_done (memCtr_ls_done),  
     .ls_data (memCtr_ls_data)
 );
-  wire[31 : 0] insFetch_insCache_pc;
-  wire insCache_hit;
-  wire[31 : 0] insCache_ins;
 insCache _insCache(
     .clk (clk_in),
     .rst (rst_in),
@@ -98,22 +161,6 @@ insCache _insCache(
     .mem_en (insCache_fetch_sig),
     .addr_to_mem (insCache_fetch_addr)
 );
-  wire insFetch_en;
-  wire[31 : 0] insFetch_pc;
-  wire[5 : 0] insFetch_opcode;
-  wire[4 : 0] insFetch_rd;
-  wire[4 : 0] insFetch_rs1;
-  wire[4 : 0] insFetch_rs2;
-  wire[31 : 0] insFetch_imm;
-  wire insFetch_is_br; 
-
-  wire lsb_full;
-  wire rob_full;
-  
-  wire[31 : 0] rob_new_pc;
-  wire rob_upt_pre_en;
-  wire[4 : 0] rob_upt_pre_reg;
-  wire rob_upt_pre_is_br;
 
 insFetch _insFetch(
     .clk (clk_in),
@@ -148,18 +195,7 @@ insFetch _insFetch(
     .pre_id (rob_upt_pre_reg),
     .is_jump (rob_upt_pre_is_br)
 );
-  wire dispatch_issue_sig;
-  wire dispatch_rob_en;
-  wire dispatch_rs_en;
-  wire dispatch_lsb_en;
-  wire[31 : 0] issue_pc;
-  wire[31 : 0] issue_imm;
-  wire[4 : 0] issue_pre_reg;
-  wire issue_is_br;
-  wire[5 : 0] issue_opcode;
-  wire[31 : 0] issue_Vi; wire[3 : 0] issue_Qi; wire issue_Ri;
-  wire[31 : 0] issue_Vj; wire[3 : 0] issue_Qj; wire issue_Rj;
-  wire[3 : 0] issue_rob_id;
+
 dispatcher _dispatcher(
     .clk (clk_in),
     .rst (rst_in),
@@ -217,14 +253,7 @@ dispatcher _dispatcher(
     .Oi(issue_Ri),
     .Oj(issue_Rj) 
 );
-  wire[4 : 0] rf_rd;
-  wire[3 : 0] rf_rob_tag;
-  wire[4 : 0] rf_rg1;
-  wire[31 : 0] rf_v1;
-  wire[4 : 0] rf_tag1;
-  wire[4 : 0] rf_rg2;
-  wire[31 : 0] rf_v2;
-  wire[4 : 0] rf_tag2; 
+
 regFile _regFile(
     .clk (clk_in), 
     .rst (rst_in),
@@ -248,9 +277,7 @@ regFile _regFile(
     .commit_val (rob_commit_val),
     .commit_rob_tag (rob_commit_id)
 );
-  wire ls_upt_en;
-  wire[3 : 0] ls_upt_rob_id;
-  wire[31 : 0] ls_upt_val;
+
 lsBuffer _lsBuffer(
     .clk (clk_in),
     .rst (rst_in),
@@ -293,6 +320,8 @@ lsBuffer _lsBuffer(
 
     .clear (clear),
     .is_rob_store (is_rob_store),
+    .is_rob_load (is_rob_load),
+    .rob_load_id (rob_load_id),
     .rob_top_id (rob_commit_id),
 
     // to update ROB and RS
@@ -300,12 +329,7 @@ lsBuffer _lsBuffer(
     .ls_rob_tag (ls_upt_rob_id),
     .ls_upt_val (ls_upt_val)
 );
-  wire is_rob_commit;
-  wire[3 : 0] rob_commit_id;
-  wire[31 : 0] rob_commit_val;
-  wire is_rob_store;
-  wire[4 : 0] rob_commit_reg;
-  wire[3 : 0] free_rob_id;
+
 Rob _Rob(
     .clk (clk_in),
     .rst (rst_in),
@@ -347,17 +371,12 @@ Rob _Rob(
     
     // to let store in lsb prepare to work
     .is_rob_store (is_rob_store),
-    
+    .is_rob_load (is_rob_load),
+    .rob_load_id (rob_load_id),
     // to update RF
     .upt_rf_reg_id (rob_commit_reg)
 );
-  wire alu_work_en;
-  wire[5 : 0] rs_alu_opcode;
-  wire[3 : 0] rs_alu_rob_id;
-  wire[31 : 0] rs_alu_val1;
-  wire[31 : 0] rs_alu_val2;
-  wire[31 : 0] rs_alu_pc;
-  wire[31 : 0] rs_alu_imm;
+
 Rs _Rs(
     .clk (clk_in),
     .rst (rst_in),
@@ -402,11 +421,7 @@ Rs _Rs(
     .rob_id_from_lsb (ls_upt_rob_id),
     .res_from_lsb (ls_upt_val)
 );
-  wire alu_upt_en;
-  wire[31 : 0] alu_upt_val;
-  wire[3 : 0] alu_upt_rob_id;
-  wire alu_upt_is_br;
-  wire[31 : 0] alu_upt_br_pc;
+
 ALU _ALU(
     .clk (clk_in),
     .rst (rst_in),

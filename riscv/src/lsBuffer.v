@@ -45,6 +45,8 @@ module lsBuffer(
 
     input wire clear,
     input wire is_rob_store,
+    input wire is_rob_load,
+    input wire[3 : 0] rob_load_id,
     input wire[3 : 0] rob_top_id,
 
     // to update ROB and RS
@@ -52,13 +54,8 @@ module lsBuffer(
     output reg[3 : 0] ls_rob_tag,
     output reg[31 : 0] ls_upt_val
 );
-    // update from lsBuffer last load
-    reg is_load_upt;
-    reg[31 : 0] upt_val;
-    reg[3 : 0] upt_rob_tag;
 
     reg[3 : 0] head;
-    reg[3 : 0] tail;
     reg[3 : 0] siz;
     reg[3 : 0] next_free;
     reg[3 : 0] last_commit_pos;
@@ -89,9 +86,9 @@ module lsBuffer(
     integer j;
     always @(posedge clk) begin
         if (rst) begin
-            is_load_upt <= 1'b0;
             ls_rdy <= 1'b0;
-            head <= 4'b0000; tail <= 4'b1111;
+            ls_sig <= 1'b0;
+            head <= 4'b0000; 
             next_free <= 4'b0000; last_commit_pos <= 4'b1111;
             for (i = 0; i < 16; i = i + 1) begin
                 is_busy[i] <= 1'b0;
@@ -102,9 +99,7 @@ module lsBuffer(
             end    
         end else if(rdy) begin
             ls_rdy <= is_upt;
-            is_load_upt <= is_upt;
             if (clear) begin 
-                tail <= last_commit_pos;
                 next_free <= (last_commit_pos + 1) & 4'b1111;
                 for (j = 0; j < 16; j = j + 1) begin
                     if (!is_commit[j]) begin
@@ -124,7 +119,6 @@ module lsBuffer(
                     Vi[next_free] <= issue_Vi; Qi[next_free] <= issue_Qi; Ri[next_free] <= issue_Ri;
                     Vj[next_free] <= issue_Vj; Qj[next_free] <= issue_Qj; Rj[next_free] <= issue_Rj;
                     imm[next_free] <= issue_imm;
-                    tail <= (tail + 1) & 4'b1111;
                     next_free <= (next_free + 1) & 4'b1111;
                 end
             end                
@@ -148,7 +142,7 @@ module lsBuffer(
                             if (opcode[head] == `OP_SH) len <= 3'b010;                        
                             if (opcode[head] == `OP_SW) len <= 3'b100;
                         end
-                    end
+                    end else ls_sig <= 1'b0;
                 end else begin 
                     if (!clear) begin // load
                     if (is_waiting[head] && ls_done) begin
@@ -156,23 +150,18 @@ module lsBuffer(
                         case (opcode[head])
                             `OP_LB: begin
                                 ls_upt_val <= {{24{ls_data[7]}}, ls_data[7 : 0]};
-                                upt_val <= {{24{ls_data[7]}}, ls_data[7 : 0]};
                             end
                             `OP_LH: begin
-                                ls_upt_val <= {{16{ls_data[15]}}, ls_data[15 : 0]};
-                                upt_val <= {{16{ls_data[15]}}, ls_data[15 : 0]};                                
+                                ls_upt_val <= {{16{ls_data[15]}}, ls_data[15 : 0]};                               
                             end
                             `OP_LW: begin
                                 ls_upt_val <= ls_data;
-                                upt_val <= ls_data;
                             end
                             `OP_LBU: begin
                                 ls_upt_val <= {24'b0, ls_data[7 : 0]};
-                                upt_val <= {24'b0, ls_data[7 : 0]};
                             end
                             `OP_LHU: begin
                                 ls_upt_val <= {16'b0, ls_data[15 : 0]};
-                                upt_val <= {16'b0, ls_data[15 : 0]};
                             end
                         endcase
                         is_busy[head] <= 1'b0;
@@ -181,7 +170,7 @@ module lsBuffer(
                         head <= (head + 1) & 4'b1111;
                         ls_sig <= 1'b0;
                     end
-                    if (!is_waiting[head]) begin
+                    if (!is_waiting[head] && ((is_rob_load && rob_load_id == rob_id[head]) || (Vi[head] + imm[head] != 32'h30000))) begin
                         is_waiting[head] <= 1'b1;
                         ls_sig <= 1'b1;
                         load_or_store <= 1'b0;
@@ -194,7 +183,7 @@ module lsBuffer(
                     end
                     end else ls_sig <= 1'b0;
                 end 
-            end
+            end else ls_sig <= 1'b0;
             if (is_rob_store) begin
                 for (i = 0; i < 16; i = i + 1) begin
                     if (is_busy[i] && !is_commit[i] && rob_id[i] == rob_top_id) begin
@@ -234,16 +223,16 @@ module lsBuffer(
                 end
             end
 
-            if (is_load_upt && !clear) begin
+            if (ls_rdy && !clear) begin
                 for (i = 0; i < 16; i = i + 1) begin
                     if (is_busy[i]) begin
-                        if (!Ri[i] && Qi[i] == upt_rob_tag) begin
+                        if (!Ri[i] && Qi[i] == ls_rob_tag) begin
                             Ri[i] <= 1'b1;
-                            Vi[i] <= upt_val;
+                            Vi[i] <= ls_upt_val;
                         end
-                        if (!Rj[i] && Qj[i] == upt_rob_tag) begin
+                        if (!Rj[i] && Qj[i] == ls_rob_tag) begin
                             Rj[i] <= 1'b1;
-                            Vj[i] <= upt_val;
+                            Vj[i] <= ls_upt_val;
                         end                         
                     end
                 end               

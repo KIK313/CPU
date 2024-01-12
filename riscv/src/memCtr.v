@@ -49,8 +49,10 @@ module memCtr (
             mem_addr <= 32'b0; 
         end 
         else if (!rdy) begin
-            mem_wr <= 1'b0;
-            mem_addr <= 32'b0;
+            if (mem_wr) begin
+                mem_wr <= 1'b0;
+                mem_addr <= 32'b0;            
+            end
             ls_done <= 1'b0;
             ins_fetch_done <= 1'b0;
         end 
@@ -63,7 +65,7 @@ module memCtr (
                         if (ls_sig) begin
                             if (ls_wr) begin
                                 state <= STORE;
-                                mem_addr <= 0;
+                                mem_addr <= 32'b0;
                                 mem_wr <= 1'b0;
                                 cur_addr <= ls_addr;
                                 len_done <= 4'b0;

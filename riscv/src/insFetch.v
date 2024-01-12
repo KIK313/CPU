@@ -95,18 +95,19 @@ module insFetch(
                     issue_en <= 1'b0;
                 end
             end
+            if (upt_en) begin
+                if (is_jump) begin
+                    if (pre_bits[pre_id] < 2'b11) pre_bits[pre_id] <= pre_bits[pre_id] + 1;
+                end else begin
+                    if (pre_bits[pre_id] > 2'b00) pre_bits[pre_id] <= pre_bits[pre_id] - 1;
+                end
+            end
         end
     end
 
     // update pre_bits
     always@ (posedge clk) begin
-        if (upt_en) begin
-            if (is_jump) begin
-                if (pre_bits[pre_id] < 2'b11) pre_bits[pre_id] <= pre_bits[pre_id] + 1;
-            end else begin
-                if (pre_bits[pre_id] > 2'b00) pre_bits[pre_id] <= pre_bits[pre_id] - 1;
-            end
-        end
+
     end
 endmodule
 `endif
