@@ -170,7 +170,7 @@ module memCtr (
                     end
                 end
                 STORE: begin
-                    if (!io_buffer_full || mem_addr[17 : 16] != 2'b11) begin
+                    if (!io_buffer_full || cur_addr[17 : 16] != 2'b11) begin
                         mem_wr <= 1'b1;
                         case (len_done) 
                             4'b0000: mem_out <= store_val[7 : 0];
