@@ -40,7 +40,7 @@ module insFetch(
     reg[31 : 0] pc; 
     reg[1 : 0] pre_bits[31 : 0]; // pc 6 -> 2
     integer i;
-
+    reg is_freeze;
     wire[5 : 0] opcode_from_id;
     wire[4 : 0] rd_from_id;
     wire[4 : 0] rs1_from_id;
@@ -59,14 +59,16 @@ module insFetch(
     always@ (posedge clk) begin
         if (rst) begin
             pc <= 32'b0;
+            is_freeze <= 1'b0;
             issue_en <= 1'b0;
             for (i = 0; i < 32; i = i + 1) pre_bits[i] <= 2'b10; 
         end else if (rdy) begin
             if (clear) begin
                 pc <= new_pc;
                 issue_en <= 1'b0;
+                is_freeze <= 1'b0;
             end else begin
-                if (hit && (!rob_full) && (!lsb_full)) begin
+                if (hit && (!rob_full) && (!lsb_full) && (!is_freeze)) begin 
                     issue_en <= 1'b1;
                     opcode <= opcode_from_id;
                     rd <= rd_from_id;
@@ -80,6 +82,7 @@ module insFetch(
                     end
                     if (opcode_from_id == `OP_JALR) begin // treat as wrong br
                         is_br <= 1'b0;
+                        is_freeze <= 1'b1;
                     end
                     if (ins[6 : 0] == 7'b1100011) begin // branch
                         if (pre_bits[pc[6 : 2]][1] == 1'b1) begin
@@ -94,7 +97,8 @@ module insFetch(
                 end else begin
                     issue_en <= 1'b0;
                 end
-            end
+            end    
+            // update pre_bits
             if (upt_en) begin
                 if (is_jump) begin
                     if (pre_bits[pre_id] < 2'b11) pre_bits[pre_id] <= pre_bits[pre_id] + 1;
@@ -103,11 +107,6 @@ module insFetch(
                 end
             end
         end
-    end
-
-    // update pre_bits
-    always@ (posedge clk) begin
-
     end
 endmodule
 `endif

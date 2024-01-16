@@ -19,7 +19,7 @@ module regFile(
 
     // communicate with rob
     input wire clear, 
-    input wire commit_sig, // clear and commit_sig can be at the same time !!   
+    input wire commit_sig, 
     input wire[4 : 0] commit_reg,
     input wire[31 : 0] commit_val,
     input wire[3 : 0] commit_rob_tag
@@ -40,7 +40,7 @@ module regFile(
             if (commit_sig && (commit_reg != 5'b00000)) begin 
                 reg_val[commit_reg] <= commit_val;
             end
-            
+            // clear and commit_sig can be at the same time !!   
             // modify tag
             if (clear) begin 
                 for (i = 0; i < 32; i = i + 1) begin

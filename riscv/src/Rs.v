@@ -128,16 +128,18 @@ module Rs(
             end
             if (is_lsb_ok) begin
                 for (i = 0; i < 16; i = i + 1) begin
-                    if (!Ri[i] && Qi[i] == rob_id_from_lsb) begin
-                        Ri[i] <= 1'b1;
-                        Qi[i] <= 4'b0;
-                        Vi[i] <= res_from_lsb;
+                    if (is_busy[i]) begin
+                        if (!Ri[i] && Qi[i] == rob_id_from_lsb) begin
+                            Ri[i] <= 1'b1;
+                            Qi[i] <= 4'b0;
+                            Vi[i] <= res_from_lsb;
+                        end
+                        if (!Rj[i] && Qj[i] == rob_id_from_lsb) begin
+                            Rj[i] <= 1'b1;
+                            Qj[i] <= 4'b0;
+                            Vj[i] <= res_from_lsb;
+                        end                     
                     end
-                    if (!Rj[i] && Qj[i] == rob_id_from_lsb) begin
-                        Rj[i] <= 1'b1;
-                        Qj[i] <= 4'b0;
-                        Vj[i] <= res_from_lsb;
-                    end 
                 end                
             end
         end
